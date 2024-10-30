@@ -1,0 +1,35 @@
+FROM python:3.12-alpine3.20 AS python-base
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=off \
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
+    PIP_DEFAULT_TIMEOUT=100 \
+    POETRY_HOME="/poetry" \
+    POETRY_VIRTUALENVS_IN_PROJECT=true \
+    POETRY_NO_INTERACTION=1 \
+    PYSETUP_PATH="/home/user/terminusbrowser" \
+    VENV_PATH="/home/user/terminusbrowser/.venv"
+ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
+
+FROM python-base AS builder-base
+ENV POETRY_VERSION=1.3.2
+RUN apk add && apk add curl build-base bash
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+RUN curl -sSL https://install.python-poetry.org | python
+WORKDIR $PYSETUP_PATH
+COPY ./pyproject.toml ./
+COPY ./poetry.lock ./
+RUN poetry install --without dev
+
+FROM python-base AS production
+RUN set -eux; \
+    adduser -u 1001 -D -h "$HOME" user; \
+    mkdir "$HOME/.irssi"; \
+    chown -R user:user "$HOME"
+COPY --from=builder-base $VENV_PATH $VENV_PATH
+COPY ./src/ $PYSETUP_PATH/src/
+COPY ./terminus_browser.py $PYSETUP_PATH/terminus_browser.py
+WORKDIR $PYSETUP_PATH
+RUN chown -R user:user /home/user
+USER user
+ENTRYPOINT ["/home/user/terminusbrowser/terminus_browser.py"]
