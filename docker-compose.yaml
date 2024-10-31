@@ -1,0 +1,19 @@
+name: terminusbrowser
+services:
+  terminusbrowser:
+    image: terminusbrowser
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+    networks:
+      - torproxynet
+    restart: unless-stopped
+networks:
+  torproxynet:
+    name: torproxynet
+    external: true
