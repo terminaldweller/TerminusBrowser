@@ -58,11 +58,11 @@ class urwidView():
         self.totalNewPosts = 0
 
         self.palette = [
-        ('body', 'light gray', 'black', 'standout'),
-        ('quote', 'light cyan', 'black'),
-        ('greenText', 'dark green', 'black'),
-        ('header', 'white', 'dark red', 'bold'),
-        ('quotePreview', 'light gray', 'black')
+        ('body','','','','h23', 'h0'),
+        ('quote','','','', 'h28', 'h0'),
+        ('greenText','','','', 'h22', 'h0'),
+        ('header','','','', 'h0', 'h63'),
+        ('quotePreview','','','', 'h39', 'h0')
         ]
 
         # use appropriate Screen class
@@ -164,6 +164,7 @@ class urwidView():
                             unhandled_input=self.handleKey,
                             pop_ups=True)
 
+                self.screen.set_terminal_properties(colors=256)
                 self.mL.set_alarm_in(30, self.watcherUpdate)
                 self.mL.run()
             else:
