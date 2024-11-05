@@ -1,4 +1,4 @@
-FROM python:3.12-alpine3.20 AS python-base
+FROM python:3.13-alpine3.20 AS python-base
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=off \
@@ -12,7 +12,7 @@ ENV PYTHONUNBUFFERED=1 \
 ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
 
 FROM python-base AS builder-base
-ENV POETRY_VERSION=1.3.2
+ENV POETRY_VERSION=1.8.4
 RUN apk add && apk add curl build-base bash
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN curl -sSL https://install.python-poetry.org | python
@@ -22,6 +22,7 @@ COPY ./poetry.lock ./
 RUN poetry install --without dev
 
 FROM python-base AS production
+RUN apk add w3m-image
 RUN set -eux; \
     adduser -u 1001 -D -h "$HOME" user; \
     mkdir "$HOME/.irssi"; \
